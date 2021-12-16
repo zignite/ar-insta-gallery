@@ -1,0 +1,32 @@
+.centered {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 5%;
+}
+
+button {
+  margin: 5%;
+  width:max-content;
+  font-size: large;
+}
+
+.btn {
+  font-size: 3rem !important;
+  padding-top: 2rem;
+  padding-bottom: 2rem;
+  padding-left: 4rem;
+  padding-right: 4rem;
+}
+
+.heading {
+  margin: 10%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 30%;
+}
+
+h1 {
+  font-size: 3rem;
+}

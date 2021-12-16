@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+        content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+  <title>Hello WebXR!</title>
+
+  <!-- three.js -->
+  <script src="https://unpkg.com/three@0.126.0/build/three.js"></script>
+  <script src="https://unpkg.com/@seregpie/three.text-texture@2.0.1"></script>
+  <script src="https://unpkg.com/@seregpie/three.text-sprite@2.0.0"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+  <script src="/ar_gallery.js"></script>
+</head>
+<body>
+<script>
+  var appId = "298455678713256"
+  var redirectURL = "https://6572-49-206-2-79.ngrok.io/personal.html"
+  var appSecret = "b95a74da6ac4a256a83ee6ccdeeb047c"
+  var url = new URL(window.location.href);
+  var code = url.searchParams.get("code");
+  if (!code) {
+    window.location.href = "https://api.instagram.com/oauth/authorize?client_id="+appId+"&redirect_uri="+redirectURL+"&scope=user_profile,user_media&response_type=code";
+  }
+
+  var formData = new FormData();
+  formData.append("client_id", appId);
+  formData.append("client_secret", appSecret);
+  formData.append("grant_type", "authorization_code");
+  formData.append("redirect_uri", redirectURL);
+  formData.append("code", code);
+
+  const getAccessToken = new XMLHttpRequest();
+  getAccessToken.onload = function() {
+    console.log(getAccessToken.response)
+    var accessToken = getAccessToken.response.access_token
+    var userId = getAccessToken.response.user_id
+    const getMedia = new XMLHttpRequest();
+    getMedia.onload = function() {
+      console.log(getMedia.response)
+      getMedia.response.data.forEach(element => {
+        console.log(element)
+        convertToBase64(element.media_url, 512, 512).then(function(base64){
+          images.push(base64)
+        });
+      });
+    };
+    getMedia.responseType = 'json';
+    getMedia.open("GET", "https://graph.instagram.com/v12.0/"+userId+"/media?fields=media_url&access_token="+accessToken);
+    getMedia.send();
+  };
+  getAccessToken.responseType = 'json';
+  getAccessToken.open("POST", "https://api.instagram.com/oauth/access_token");
+  getAccessToken.send(formData);
+
+</script>
+
+<!-- Starting an immersive WebXR session requires user interaction.
+    We start this one with a simple button. -->
+<button onclick="activateXR()">Start Hello WebXR</button>
+</body>
+</html>

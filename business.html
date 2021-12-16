@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+        content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+  <title>Hello WebXR!</title>
+
+  <!-- three.js -->
+  <script src="https://unpkg.com/three@0.126.0/build/three.js"></script>
+  <script src="https://unpkg.com/@seregpie/three.text-texture@2.0.1"></script>
+  <script src="https://unpkg.com/@seregpie/three.text-sprite@2.0.0"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+  <script src="/ar_gallery.js"></script>
+</head>
+<body>
+<script>
+
+  function statusChangeCallback(response) {  // Called with the results from FB.getLoginStatus().
+    console.log('statusChangeCallback');
+    console.log(response);                   // The current login status of the person.
+    if (response.status === 'connected') {   // Logged into your webpage and Facebook.
+      testAPI();
+      var accessToken = response.authResponse.accessToken;
+      const getPages = new XMLHttpRequest();
+      getPages.onload = function() {
+        const getIGBAccount = new XMLHttpRequest();
+        getIGBAccount.onload = function() {
+          const getMedia = new XMLHttpRequest();
+          getMedia.onload = function() {
+            getMedia.response.data.forEach(element => {
+              console.log(element)
+              convertToBase64(element.media_url, 512, 512).then(function(base64){
+                images.push(base64)
+              });
+            });            
+          }
+          var igUserId = getIGBAccount.response.instagram_business_account.id
+          getMedia.responseType = 'json';
+          getMedia.open("GET", "https://graph.facebook.com/v12.0/"+igUserId+"/media?fields=media_url&access_token="+accessToken);
+          getMedia.send();
+        }
+        var pageId = getPages.response.data[0].id
+        getIGBAccount.responseType = 'json';
+        getIGBAccount.open("GET", "https://graph.facebook.com/v12.0/"+pageId+"?fields=instagram_business_account&access_token="+accessToken);
+        getIGBAccount.send();
+      }
+      getPages.responseType = 'json';
+      getPages.open("GET", "https://graph.facebook.com/v12.0/me/accounts?access_token="+accessToken);
+      getPages.send();
+    } else {                                 // Not logged into your webpage or we are unable to tell.
+      document.getElementById('status').innerHTML = 'Please log ' +
+        'into this webpage.';
+    }
+  }
+
+  function checkLoginState() {               // Called when a person is finished with the Login Button.
+    FB.getLoginStatus(function(response) {   // See the onlogin handler
+      statusChangeCallback(response);
+    });
+  }
+
+  window.fbAsyncInit = function() {
+    FB.init({
+      appId      : '2265996013540251',
+      cookie     : true,                     // Enable cookies to allow the server to access the session.
+      xfbml      : true,                     // Parse social plugins on this webpage.
+      version    : 'v12.0'           // Use this Graph API version for this call.
+    });
+
+    FB.getLoginStatus(function(response) {   // Called after the JS SDK has been initialized.
+      statusChangeCallback(response);        // Returns the login status.
+    });
+  };
+ 
+  function testAPI() {                      // Testing Graph API after login.  See statusChangeCallback() for when this call is made.
+    console.log('Welcome!  Fetching your information.... ');
+    FB.api('/me', function(response) {
+      console.log('Successful login for: ' + response.name);
+      document.getElementById('status').innerHTML =
+        'Thanks for logging in, ' + response.name + '!';
+    });
+  }
+</script>
+
+<!-- The JS SDK Login Button -->
+<fb:login-button scope="public_profile,instagram_basic,pages_show_list" onlogin="checkLoginState();">
+</fb:login-button>
+
+<div id="status">
+</div>
+
+<!-- Starting an immersive WebXR session requires user interaction.
+    We start this one with a simple button. -->
+<button onclick="activateXR()">Start Hello WebXR</button>
+
+<!-- Load the JS SDK asynchronously -->
+<script async defer crossorigin="anonymous" src="https://connect.facebook.net/en_US/sdk.js"></script>
+
+</body>
+</html>

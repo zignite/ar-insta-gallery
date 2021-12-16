@@ -30,3 +30,10 @@ button {
 h1 {
   font-size: 3rem;
 }
+
+.startar {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 70%;
+}

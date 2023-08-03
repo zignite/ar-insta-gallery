@@ -68,7 +68,7 @@
     getMedia.send();
   };
   getAccessToken.responseType = 'json';
-  getAccessToken.open("POST", "https://api.instagram.com/oauth/access_token");
+  getAccessToken.open("POST", "https://cors-anywhere.herokuapp.com/https://api.instagram.com/oauth/access_token");
   getAccessToken.send(formData);
 
 </script>
